@@ -1,8 +1,13 @@
 __author__ = 'abg'
 
-# import math;
+"""
+Program to play a particular method.
+Converts the documented order lists into lists of changes,
+notated as X = swap and | = lie.
+Plain hunt would be (XXX,|XX|) repeated continously.
+"""
 
-lead6 = [
+lead6_order = [
     123456,
     213465,
     231456,
@@ -17,7 +22,7 @@ lead6 = [
     156234,
     152643,
 ]
-lead4 = [
+lead4_order = [
     152643,
     512634,
     521643,
@@ -32,7 +37,7 @@ lead4 = [
     143526,
     145362,
 ]
-lead5 = [
+lead5_order = [
     145362,
     415326,
     451362,
@@ -47,7 +52,7 @@ lead5 = [
     162453,
     164235,
 ]
-lead2 = [
+lead2_order = [
     164235,
     614253,
     641235,
@@ -62,7 +67,7 @@ lead2 = [
     135642,
     136524,
 ]
-lead3 = [
+lead3_order = [
     136524,
     316542,
     361524,
@@ -77,41 +82,51 @@ lead3 = [
     124365,
     123456,
 ]
-leads = [lead6, lead4, lead5, lead2, lead3]
+leads = [lead6_order, lead4_order, lead5_order, lead2_order, lead3_order]
 
-plain = [
-    512643,
+plain_order = [
+    # 512643,
     156234,
     152643,
-    512634,
+    # 512634,
 ]
 
-bob = [
-    512643,
+bob_order = [
+    #512643,
     156234,
     165243,
-    615234,
+    #615234,
 ]
 
-single = [
-    512643,
+single_order = [
+    #512643,
     156234,
     156243,
-    516234,
+    #516234,
 ]
 
+N = 6
+PLACE_RANGE = range(0, N)
 
-def changes_to_places(changes, places):
-    '''
+
+def zeros(n):
+    a = list()
+    for i in range(0, n):
+        a.append(0)
+    return a
+
+
+def order_to_places(order):
+    """
     converts a series of decimal numbers,
     as the place order in decimal notation, to a 2d array of individual bell places
-    :param changes: list of integer bell orders
-    :param places: array or places to write to
-    :return: nothing
-    '''
-    for ch in changes:
-        # print "change =",ch
-        pl = [0, 0, 0, 0, 0, 0]
+    :param order: list of integer bell orders
+    :return: array or places to write to
+    """
+    places = []
+    for ch in order:
+        # print "order =",ch
+        pl = zeros(N)
         i = 5
         while ch > 0:
             p2 = int(ch / 10)
@@ -122,7 +137,7 @@ def changes_to_places(changes, places):
             pl[i] = p
             i -= 1
         places.append(pl)
-
+    return places
 
 def print_notes(n):
     for e in n:
@@ -132,38 +147,54 @@ def print_notes(n):
         print str
 
 
-def lead_to_changes(lead, changes):
-    places = []
-    changes_to_places(lead, places)
-    n = len(places)
-    m = len(places[0])
+def lead_to_changes(lead):
+    """
+    takes a list of orders, as a lead end, and translates into a list of changes.
+    :param lead:
+    :return: changes
+    """
+    changes = []
+    pls = order_to_places(lead)
+    n = len(pls)
     for i in range(1, n):
-        now = places[i]
-        prev = places[i - 1]
+        now = pls[i]
+        prev = pls[i - 1]
         # print "change\n\t",prev, "->\n\t", now
-        note = []
-        pl = 0
-        while pl < m:
-            if prev[pl] == now[pl]:
-                note.append("|")
-            elif prev[pl] == now[pl + 1] and prev[pl + 1] == now[pl]:
-                note.append("X")
-                pl += 1
-            else:
-                print "illegal change", prev[pl], now[pl + 1], prev[pl + 1], now[pl]
-            pl += 1
+        note = calc_change(prev, now)
         changes.append(note)
+    return changes
+
+
+def calc_change(prev, now):
+    """
+    calculate the change notation for a pair of places
+    :param prev:  places before
+    :param now:   places after change
+    :return: note string.
+    """
+    m = len(prev)
+    note = []
+    pl = 0
+    while pl < m:
+        if prev[pl] == now[pl]:
+            note.append("|")
+        elif prev[pl] == now[pl + 1] and prev[pl + 1] == now[pl]:
+            note.append("X")
+            pl += 1
+        else:
+            print "illegal change", prev[pl], now[pl + 1], prev[pl + 1], now[pl]
+        pl += 1
+    return note
 
 
 def check_leads(leads):
-    '''
+    """
     Checks the members of leads to see that they all have the same set of changes.
     :return:
-    '''
+    """
     ch_set = []
     for lead in leads:
-        ch = []
-        lead_to_changes(lead, ch)
+        ch = lead_to_changes(lead)
         ch_set.append(ch)
     nx = len(ch_set)
     ny = len(ch_set[0])
@@ -182,11 +213,54 @@ def check_leads(leads):
     return bad == 0
 
 
+def swap(p, index):
+    """
+    swap elements [index] and [index+1] of p
+    :param p:
+    :param index:
+    :return: modified p
+    """
+    tmp = p[index]
+    p[index] = p[index + 1]
+    p[index + 1] = tmp
+    return p
+
+
+def do_change(pin, pout, change):
+    """
+    interpret one change string and apply to place in to make place out
+    :param in: places before
+    :param out: places after
+    :param change: change string.
+    :return:
+    """
+    i = 0
+    print "before", pin, "change", change
+    for c in change:
+        if i == N:
+            return
+        print c
+        if c == 'X':
+            pout = swap(pin, i)
+            i += 2
+        elif c == '|':
+            i += 1
+        else:
+            print "ERROR bad change symbol:", c
+    print "after", pin, "change", change
+
+
+if False:
+    do_change([1, 2, 3, 4, 5, 6], [0, 0, 0, 0, 0, 0], "XXX")
+    exit()
+
 ok = check_leads(leads)
 print "ok=", ok
 
-notes = []
-places = []
-method = []
-lead_to_changes(lead2, method)
+method = lead_to_changes(lead2_order)
+bob_change = lead_to_changes(bob_order)
+single_change = lead_to_changes(single_order)
+plain_change = lead_to_changes(plain_order)
+
+
 print_notes(method)
