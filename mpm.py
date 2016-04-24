@@ -92,19 +92,20 @@ plain_order = [
 ]
 
 bob_order = [
-    #512643,
+    # 512643,
     156234,
     165243,
-    #615234,
+    # 615234,
 ]
 
 single_order = [
-    #512643,
+    # 512643,
     156234,
     156243,
-    #516234,
+    # 516234,
 ]
 
+VERBOSE = False
 N = 6
 PLACE_RANGE = range(0, N)
 ROUNDS = range(1, N + 1)
@@ -114,8 +115,9 @@ def is_rounds(order):
     for i in PLACE_RANGE:
         if order[i] != ROUNDS[i]:
             return False
-    print "rounds"
+    print "found rounds"
     return True
+
 
 def zeros(n):
     a = list()
@@ -142,6 +144,7 @@ def print_orders(n):
         i += 1
         print i, " : ", n
 
+
 def order_to_places(order):
     """
     converts a series of decimal numbers,
@@ -164,7 +167,6 @@ def order_to_places(order):
             i -= 1
         places.append(pl)
     return places
-
 
 
 def lead_to_changes(lead):
@@ -245,9 +247,6 @@ def swap(order, index):
     order[index + 1] = tmp
 
 
-VERBOSE = False
-
-
 def do_change(order, change):
     """
     interpret one change string and apply to place in to make place out
@@ -289,6 +288,13 @@ def copy_order(order):
     return new
 
 
+def check_rounds(order, till_rounds):
+    if till_rounds:
+        if is_rounds(order):
+            return True
+    return False
+
+
 def play_lead(order, lead, cmd, till_rounds, result):
     """
     play a single lead, mofifying the last element with the change for the given cmd.
@@ -308,9 +314,9 @@ def play_lead(order, lead, cmd, till_rounds, result):
     for change in my_lead:
         do_change(order, change)
         append_order(order, result)
-        if till_rounds and is_rounds(order):
+        if check_rounds(order, till_rounds):
             return False
-    if till_rounds and is_rounds(order):
+    if check_rounds(order, till_rounds):
         return False
     return True
 
@@ -328,7 +334,6 @@ def play_composition(comp, method, till_rounds):
     while more:
         for cmd in comp:
             more = play_lead(order, method["lead"], method[cmd], till_rounds, res)
-            print more
             if not more:
                 break
         if not till_rounds:
@@ -348,11 +353,16 @@ method = {
 }
 
 
-#print_notes(method["lead"])
+# print_notes(method["lead"])
 
 plain_course = [
-    "plain", "plain", "plain", "plain", "plain", "plain"
+    "plain", "plain", "plain", "plain", "plain"
+]
+touch = [
+    "bob", "plain",
+    "bob", "plain",
+    "bob", "plain",
 ]
 
-orders = play_composition(plain_course, method, True)
+orders = play_composition(touch, method, True)
 print_orders(orders)
