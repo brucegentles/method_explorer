@@ -107,7 +107,15 @@ single_order = [
 
 N = 6
 PLACE_RANGE = range(0, N)
+ROUNDS = range(1, N + 1)
 
+
+def is_rounds(order):
+    for i in PLACE_RANGE:
+        if order[i] != ROUNDS[i]:
+            return False
+    print "rounds"
+    return True
 
 def zeros(n):
     a = list()
@@ -115,6 +123,24 @@ def zeros(n):
         a.append(0)
     return a
 
+
+def print_notes(n):
+    for e in n:
+        str = ""
+        for s in e:
+            str += s
+        print str
+
+
+def print_orders(n):
+    i = 0
+    for e in n:
+        n = 0
+        for v in e:
+            n *= 10
+            n += v
+        i += 1
+        print i, " : ", n
 
 def order_to_places(order):
     """
@@ -139,12 +165,6 @@ def order_to_places(order):
         places.append(pl)
     return places
 
-def print_notes(n):
-    for e in n:
-        str = ""
-        for s in e:
-            str += s
-        print str
 
 
 def lead_to_changes(lead):
@@ -213,54 +233,126 @@ def check_leads(leads):
     return bad == 0
 
 
-def swap(p, index):
+def swap(order, index):
     """
-    swap elements [index] and [index+1] of p
-    :param p:
+    swap elements [index] and [index+1] of order
+    :param order: input order
     :param index:
-    :return: modified p
+    :return: none
     """
-    tmp = p[index]
-    p[index] = p[index + 1]
-    p[index + 1] = tmp
-    return p
+    tmp = order[index]
+    order[index] = order[index + 1]
+    order[index + 1] = tmp
 
 
-def do_change(pin, pout, change):
+VERBOSE = False
+
+
+def do_change(order, change):
     """
     interpret one change string and apply to place in to make place out
-    :param in: places before
-    :param out: places after
+    :param order: places before - modified in-plce
     :param change: change string.
     :return:
     """
     i = 0
-    print "before", pin, "change", change
+    if VERBOSE:
+        print "before", order, "change", change
     for c in change:
-        if i == N:
-            return
-        print c
+        if i >= len(order):
+            print "got to end of change"
+            break
+        # print "a:",c,i
         if c == 'X':
-            pout = swap(pin, i)
+            swap(order, i)
             i += 2
         elif c == '|':
             i += 1
         else:
             print "ERROR bad change symbol:", c
-    print "after", pin, "change", change
+            # print "b:",c,i
+    if VERBOSE:
+        print "after", order, "change", change
+
+
+def append_order(order, l):
+    new = []
+    for x in order:
+        new.append(x)
+    l.append(new)
+
+
+def copy_order(order):
+    new = []
+    for x in order:
+        new.append(x)
+    return new
+
+
+def play_lead(order, lead, cmd, till_rounds, result):
+    """
+    play a single lead, mofifying the last element with the change for the given cmd.
+    if Till_rounds is set, abort if rounds is got to.
+    :param order: current order of bells. list of N places
+    :param lead: list of changes for plain course
+    :param cmd: change for this type of lead - ie the bob change.
+    :param till_rounds: boolean, if True, will repeat until order is rounds.
+    :param result: resulting list of orders to be appended to
+    :return: True if we have not yet come into rounds.
+    """
+    my_lead = lead
+    my_lead[-1] = cmd[0]
+    if VERBOSE:
+        print lead[-1]
+        print my_lead[-1]
+    for change in my_lead:
+        do_change(order, change)
+        append_order(order, result)
+        if till_rounds and is_rounds(order):
+            return False
+    if till_rounds and is_rounds(order):
+        return False
+    return True
+
+
+def play_composition(comp, method, till_rounds):
+    """
+    sequences a composition
+    :param comp:  composition, a list of verbs from the set plain,bob,single
+    :param till_rounds: boolean, if True, will repeat until order is rounds.
+    :return: list of orders.
+    """
+    res = []
+    order = copy_order(ROUNDS)
+    more = True
+    while more:
+        for cmd in comp:
+            more = play_lead(order, method["lead"], method[cmd], till_rounds, res)
+            print more
+            if not more:
+                break
+        if not till_rounds:
+            break
+    return res
 
 
 if False:
-    do_change([1, 2, 3, 4, 5, 6], [0, 0, 0, 0, 0, 0], "XXX")
-    exit()
+    ok = check_leads(leads)
+    print "ok=", ok
 
-ok = check_leads(leads)
-print "ok=", ok
+method = {
+    "lead": lead_to_changes(lead2_order),
+    "bob": lead_to_changes(bob_order),
+    "single": lead_to_changes(single_order),
+    "plain": lead_to_changes(plain_order)
+}
 
-method = lead_to_changes(lead2_order)
-bob_change = lead_to_changes(bob_order)
-single_change = lead_to_changes(single_order)
-plain_change = lead_to_changes(plain_order)
 
+#print_notes(method["lead"])
 
-print_notes(method)
+plain_course = [
+    "plain", "plain", "plain", "plain", "plain", "plain"
+]
+
+orders = play_composition(plain_course, method, True)
+print_orders(orders)
