@@ -7,6 +7,8 @@ notated as X = swap and | = lie.
 Plain hunt would be (XXX,|XX|) repeated continously.
 """
 
+import numpy as np;
+
 lead6_order = [
     123456,
     213465,
@@ -134,13 +136,17 @@ def print_notes(n):
         print str
 
 
+def places_to_order(places):
+    n = 0
+    for v in places:
+        n *= 10
+        n += v
+    return n
+
 def print_orders(n):
     i = 0
     for e in n:
-        n = 0
-        for v in e:
-            n *= 10
-            n += v
+        n = places_to_order(e)
         i += 1
         print i, " : ", n
 
@@ -341,6 +347,22 @@ def play_composition(comp, method, till_rounds):
     return res
 
 
+def check_method(orders):
+    """
+    checks to see if all changes have been sone, or there are any duplicates
+    :param orders: orders, list of places.
+    :return: Boolean, True if no repeats
+    """
+    hist = np.zeros(654321)
+    n_rep = 0
+    for i in orders:
+        n = places_to_order(i)
+        hist[n] += 1
+        if (hist[n] > 1.0):
+            n_rep += 1
+            print "repeat", n, hist[n]
+    return n_rep
+
 if False:
     ok = check_leads(leads)
     print "ok=", ok
@@ -358,11 +380,34 @@ method = {
 plain_course = [
     "plain", "plain", "plain", "plain", "plain"
 ]
-touch = [
+
+# touch1 120:
+# repeat 165243 2.0
+# repeat 143652 2.0
+# repeat 152436 2.0
+# repeat 136524 2.0
+# repeat 124365 2.0
+touch1 = [
     "bob", "plain",
     "bob", "plain",
     "bob", "plain",
 ]
 
-orders = play_composition(touch, method, True)
+# touch2 216 long
+# repeat 165243 2.0
+# repeat 134625 2.0
+# repeat 152364 2.0
+# repeat 164523 2.0
+# repeat 132654 2.0
+# repeat 145362 2.0
+# repeat 162453 2.0
+# repeat 135642 2.0
+# repeat 124365 2.0
+touch2 = [
+    "bob", "bob", "bob",
+    "plain", "plain", "plain",
+]
+
+orders = play_composition(touch2, method, True)
 print_orders(orders)
+check_method(orders)
