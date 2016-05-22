@@ -8,11 +8,12 @@ PLACE_RANGE = range(0, N)
 ROUNDS = range(1, N + 1)
 
 
-def is_rounds(order):
+def is_rounds(order, index=0, verbose=False):
     for i in PLACE_RANGE:
         if order[i] != ROUNDS[i]:
             return False
-    print "found rounds"
+    if verbose:
+        print "found rounds at ", index
     return True
 
 
@@ -31,6 +32,10 @@ def print_notes(n):
         print str
 
 
+def print_lead(method, lead_name):
+    print method["name"]
+    print_notes(method[lead_name])
+
 def places_to_order(places):
     n = 0
     for v in places:
@@ -39,16 +44,38 @@ def places_to_order(places):
     return n
 
 
-def print_order(cmd, e, i):
-    n = places_to_order(e)
-    print i, cmd, " : ", n
+def places_to_working_bells(places):
+    n = 0
+    for i in range(1, len(places)):
+        n *= 10
+        n += places[i]
+    return n
+
+
+def print_order(cmd, e, i, verbose=False):
+    if verbose:
+        n = places_to_order(e)
+        print i, n, " : ", cmd
+
+
+def print_working_bells(cmd, e, i, verbose=False):
+    if verbose:
+        n = places_to_working_bells(e)
+        print i, n, " : ", cmd
+
+
+def print_last_bells(cmd, e, i, verbose=False):
+    if verbose:
+        n = places_to_working_bells(e)
+        print i, n, " : end."
+
 
 
 def print_orders(n):
     i = 0
     for e in n:
         i += 1
-        print_order("", e, i)
+        print_order("", e, i, True)
 
 
 def order_to_places(order):
@@ -194,16 +221,16 @@ def copy_order(order):
     return new
 
 
-def check_rounds(order, till_rounds):
+def check_rounds(order, index, till_rounds, verbose=False):
     if till_rounds:
-        if is_rounds(order):
+        if is_rounds(order, index, verbose):
             return True
     return False
 
 
-def play_lead(order, lead, cmd, till_rounds, result):
+def play_lead(order, lead, cmd, start_index, till_rounds, result, verbose=False):
     """
-    play a single lead, mofifying the last element with the change for the given cmd.
+    play a single lead, modifying the last element with the change for the given cmd.
     if Till_rounds is set, abort if rounds is got to.
     :param order: current order of bells. list of N places
     :param lead: list of changes for plain course
@@ -212,6 +239,7 @@ def play_lead(order, lead, cmd, till_rounds, result):
     :param result: resulting list of orders to be appended to
     :return: True if we have not yet come into rounds.
     """
+    index = start_index
     my_lead = lead
     my_lead[-1] = cmd[0]
     if VERBOSE:
@@ -220,14 +248,15 @@ def play_lead(order, lead, cmd, till_rounds, result):
     for change in my_lead:
         do_change(order, change)
         append_order(order, result)
-        if check_rounds(order, till_rounds):
+        if check_rounds(order, index, till_rounds, verbose):
             return False
-    if check_rounds(order, till_rounds):
+        index += 1
+    if check_rounds(order, index, till_rounds, verbose):
         return False
     return True
 
 
-def play_composition(comp, method_info, till_rounds):
+def play_composition(comp, method_info, till_rounds, verbose=False):
     """
     sequences a composition
     :param comp:  composition, a list of verbs from the set plain,bob,single
@@ -241,32 +270,41 @@ def play_composition(comp, method_info, till_rounds):
     i = 0
     while more:
         for cmd in comp:
-            print_order(cmd, order, i)
-            more = play_lead(order, method_info["lead"], method_info[cmd], till_rounds, res)
+            print_working_bells(cmd, order, i, verbose)
+            more = play_lead(order, method_info["lead"], method_info[cmd], i, till_rounds, res, verbose)
             i += len(method_info["lead"])
             if not more:
-                print_order(cmd, order, len(res))
+                print_working_bells(cmd, order, i, verbose)
                 break
         if not till_rounds:
+            print_last_bells(cmd, order, len(res), verbose)
             break
     return res
 
 
-def check_method(orders):
+def check_method(orders, verbose=False):
     """
-    checks to see if all changes have been sone, or there are any duplicates
+    checks to see if all changes have been done, or there are any duplicates
     :param orders: orders, list of places.
-    :return: Boolean, True if no repeats
+    :return: number of reps, length to rounds
     """
+    max_rep = 10
     hist = np.zeros(654321)
+    repeats = np.zeros((654321, max_rep))
     n_rep = 0
+    count = 0
     for i in orders:
+        count += 1
         n = places_to_order(i)
         idx = n - 1
-        hist[idx] += 1
-        if (hist[idx] > 1.0):
-            n_rep += 1
-            print "repeat", n, hist[idx]
-    if n_rep == 0:
+        j = hist[idx]
+        hist[idx] = j + 1
+        if j < max_rep:
+            repeats[idx, j] = count
+            if j > 0.0:
+                n_rep += 1
+                if verbose:
+                    print "repeat ", n, " x ", j + 1, " at ", count, " prev ", repeats[idx, j - 1]
+    if verbose and n_rep == 0:
         print "no repeats"
-    return n_rep
+    return count, n_rep

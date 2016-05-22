@@ -7,227 +7,216 @@ notated as X = swap and | = lie.
 Plain hunt would be (XXX,|XX|) repeated continously.
 """
 
-import method
+import method as m
+import bob_minor
+import middlezoy_bob_minor as mbm
+import method.touch_set as ts
+import method.call_pattern as cp
 
-bob_minor_lead = [
-    123456,
-    214365,
-    241635,
-    426153,
-    462513,
-    645231,
-    654321,
-    563412,
-    536142,
-    351624,
-    315264,
-    132546,
-    123456,
-]
-bob_minor_plain = [
-    132546,
-    135264,
-]
-bob_minor_bob = [
-    132546,
-    123564,
-]
-bob_minor_single = [
-    132546,
-    132564,
-]
+method_bm = bob_minor.get_method()
+# m.print_lead(method_bm,"plain")
 
-# 13 orders, 12 changes. 5 x 12 = 60
-lead6_order = [
-    123456,
-    213465,
-    231456,
-    324165,
-    342615,
-    432651,
-    423561,
-    245316,
-    254136,
-    521463,
-    512643,
-    156234,
-    152643,
-]
-lead4_order = [
-    152643,
-    512634,
-    521643,
-    256134,
-    265314,
-    625341,
-    652431,
-    564213,
-    546123,
-    451632,
-    415362,
-    143526,
-    145362,
-]
-lead5_order = [
-    145362,
-    415326,
-    451362,
-    543126,
-    534216,
-    354261,
-    345621,
-    436512,
-    463152,
-    641325,
-    614235,
-    162453,
-    164235,
-]
-lead2_order = [
-    164235,
-    614253,
-    641235,
-    462153,
-    426513,
-    246531,
-    264351,
-    623415,
-    632145,
-    361254,
-    316524,
-    135642,
-    136524,
-]
-lead3_order = [
-    136524,
-    316542,
-    361524,
-    635142,
-    653412,
-    563421,
-    536241,
-    352614,
-    325164,
-    231546,
-    213456,
-    124365,
-    123456,
-]
-leads = [lead6_order, lead4_order, lead5_order, lead2_order, lead3_order]
-
-plain_order = [
-    # 512643,
-    156234,
-    152643,
-    # 512634,
-]
-
-bob_order = [
-    # 512643,
-    156234,
-    165243,
-    # 615234,
-]
-
-single_order = [
-    # 512643,
-    156234,
-    156243,
-    # 516234,
-]
-
-method_bm = {
-    "lead": method.lead_to_changes(bob_minor_lead),
-    "bob": method.lead_to_changes(bob_minor_bob),
-    "single": method.lead_to_changes(bob_minor_single),
-    "plain": method.lead_to_changes(bob_minor_plain)
-}
-
-for s in method_bm["lead"]:
-    print s
-
-method_mpm = {
-    "lead": method.lead_to_changes(lead2_order),
-    "bob": method.lead_to_changes(bob_order),
-    "single": method.lead_to_changes(single_order),
-    "plain": method.lead_to_changes(plain_order)
-}
-
-for s in method_mpm["lead"]:
-    print s
-exit()
-
-
-if False:
-    ok = method.check_leads(leads)
-    print "ok=", ok
-
+method_mbm = mbm.get_method()
+# m.print_lead(method_mbm,"plain")
 # print_notes(method["lead"])
 
-plain_course = [
-    "plain", "plain", "plain", "plain", "plain"
-]
+if False:
+    plain_course = [
+        "plain", "plain", "plain", "plain", "plain"
+    ]
 
-# touch1 120:
-# repeat 165243 2.0
-# repeat 143652 2.0
-# repeat 152436 2.0
-# repeat 136524 2.0
-# repeat 124365 2.0
-touch1 = [
-    "bob", "plain",
-    "bob", "plain",
-    "bob", "plain",
-]
+    # touch1 120:
+    # repeat 165243 2.0
+    # repeat 143652 2.0
+    # repeat 152436 2.0
+    # repeat 136524 2.0
+    # repeat 124365 2.0
+    touch1 = [
+        # 0      12      24      36       48      60
+        "plain", "plain", "plain", "plain", "bob",
 
-# touch2 216 long
-# repeat 165243 2.0
-# repeat 134625 2.0
-# repeat 152364 2.0
-# repeat 164523 2.0
-# repeat 132654 2.0
-# repeat 145362 2.0
-# repeat 162453 2.0
-# repeat 135642 2.0
-# repeat 124365 2.0
-touch2 = [
-    "bob", "bob", "bob",
-    "plain", "plain", "plain",
-]
+        # 60      72      84     96       108    120
+        "plain", "plain", "plain", "plain", "bob",
 
-touch720 = [
-    "plain", "plain", "bob",
-    "plain", "plain", "bob",
-    # "plain", "plain", "plain", "plain", "bob",
-    # "plain", "plain", "plain", "plain", "bob"
-]
+        # 120    132     144      156     168    180
+        "plain", "plain", "plain", "plain", "single",
 
-one_lead = ["bob", "plain", "plain", "plain",  # 48
-            "bob", "plain", "plain", "plain",  # 96
-            "bob", "plain", "plain", "plain",  # 144
-            "bob", "plain", "plain", "plain",  # 192
-            "bob", "plain", "plain", "single",  # 240
-            "bob", "plain", "plain", "plain",  # 48
-            "bob", "plain", "plain", "plain",  # 96
-            "bob", "plain", "plain", "plain",  # 144
-            "bob", "plain", "plain", "plain",  # 192
-            "bob", "plain", "plain", "plain",  # 240
-            "bob", "plain", "plain", "plain",  # 288
-            "bob", "plain", "plain", "plain",  # 336
-            "bob", "plain", "plain", "plain",  # 384
-            "bob", "plain", "plain", "plain",  # 432
-            "bob", "plain", "plain", "single",  # 480
-            "bob", "plain", "plain", "plain",  # 48
-            "bob", "plain", "plain", "plain",  # 96
-            "bob", "plain", "plain", "plain",  # 144
-            "bob", "plain", "plain", "plain",  # 192
-            "bob", "plain", "plain", "plain",  # 240
-            ]
+        #    "plain","plain","plain", "plain","bob",
+    ]
 
-glenn_a_a_taylor_720 = [
-    "plain", "plain", "plain",
-    "bob", "single", "single"
-]
-orders = method.play_composition(one_lead, method_bm, True)
-method.print_orders(orders)
-method.check_method(orders)
+    # touch2 216 long
+    # repeat 165243 2.0
+    # repeat 134625 2.0
+    # repeat 152364 2.0
+    # repeat 164523 2.0
+    # repeat 132654 2.0
+    # repeat 145362 2.0
+    # repeat 162453 2.0
+    # repeat 135642 2.0
+    # repeat 124365 2.0
+    touch2 = [
+        "bob", "bob", "bob",
+        "plain", "plain", "plain",
+    ]
+
+    touch720 = [
+        "plain", "plain", "bob",
+        "plain", "plain", "bob",
+        # "plain", "plain", "plain", "plain", "bob",
+        # "plain", "plain", "plain", "plain", "bob"
+    ]
+
+    one_lead = ["bob", "plain", "plain", "plain",  # 48
+                "bob", "plain", "plain", "plain",  # 96
+                "bob", "plain", "plain", "plain",  # 144
+                "bob", "plain", "plain", "plain",  # 192
+                "bob", "plain", "plain", "single",  # 240
+                "bob", "plain", "plain", "plain",  # 48
+                "bob", "plain", "plain", "plain",  # 96
+                "bob", "plain", "plain", "plain",  # 144
+                "bob", "plain", "plain", "plain",  # 192
+                "bob", "plain", "plain", "plain",  # 240
+                "bob", "plain", "plain", "plain",  # 288
+                "bob", "plain", "plain", "plain",  # 336
+                "bob", "plain", "plain", "plain",  # 384
+                "bob", "plain", "plain", "plain",  # 432
+                "bob", "plain", "plain", "single",  # 480
+                "bob", "plain", "plain", "plain",  # 48
+                "bob", "plain", "plain", "plain",  # 96
+                "bob", "plain", "plain", "plain",  # 144
+                "bob", "plain", "plain", "plain",  # 192
+                "bob", "plain", "plain", "plain",  # 240
+                ]
+
+    glenn_a_a_taylor_720 = [
+        "plain", "plain", "plain",
+        "bob", "single", "single"
+    ]
+
+
+def try_permutations():
+    # extent = 720  lead is 12 so 60 calls. 5 working bells so only need a call every 5th lead.
+    permutations = ts.TouchSet(12)
+    count = 0
+    max_len = 0
+    max_touch = []
+    method = method_bm
+    verbose = False
+    j = 0
+
+    print str.format("max {} iterations", pow(2, 12))
+    while permutations.more:  # and count < permutations.size:
+        orders = m.play_composition(permutations.get(), method, True, verbose)
+        # m.print_orders(orders)
+        length, n_rep = m.check_method(orders, verbose)
+        if n_rep == 0 and length > max_len:
+            print "i=", count, "length=", length, "n_repeats=", n_rep, "codes", permutations.get_code_txt()
+            max_len = length
+            max_touch = permutations.get()
+        count += 1
+        j += 1
+        if j >= 100:
+            print count
+            j = 0
+        permutations.inc()
+
+    print "done ", count, " iterations"
+    verbose = True
+    orders = m.play_composition(max_touch, method, True, verbose)
+    length, n_rep = m.check_method(orders, verbose)
+    print "i=", count, "length=", length, "n_repeats=", n_rep
+    m.print_orders(orders)
+
+
+def try_max_length_pattern():
+    p = cp.CallPattern(0, 14, 60)
+    method = method_bm
+    verbose = True
+    orders = m.play_composition(p.get(), method, True, verbose)
+    # m.print_orders(orders)
+    length, n_rep = m.check_method(orders, verbose)
+    print "length=", length, "n_repeats=", n_rep, "codes", p.get_code_txt()
+    #m.print_orders(orders)
+
+
+def print_sequence(seq):
+    stopAtRounds = False
+    method = method_bm
+    verbose = True
+    orders = m.play_composition(seq, method, stopAtRounds, verbose)
+    # m.print_orders(orders)
+    length, n_rep = m.check_method(orders, verbose)
+    print "length=", length, "n_repeats=", n_rep
+    # m.print_orders(orders)
+
+
+def strToSeq(string):
+    seq = []
+    for i in range(len(string)):
+        seq.append(string[i])
+    return seq
+
+
+# try_permutations()
+# try_max_length_pattern()
+
+def diag2():
+    seqx = ""
+    seqx += "bbsp"  # to 25364 in diag 2
+    # seqx += "bp"    # to 54236 in inner circle in diag 2
+    # seqx += "bpp"    # to 43562 in inner circle in diag 2
+    seqx += "bppp"  # to 36425 in inner circle in diag 2
+    seqx += "ssss"  # round this hex
+    seqx += "p"  # out
+    return seqx
+
+
+def to_group(n_hex):
+    """
+    from entry to the diag from page 1 to hex n
+    :return: sequence
+    """
+    seq = "b"
+    for i in range(0, n_hex - 1):
+        seq += "p"
+    return seq
+
+
+def to_exit(n):
+    """
+    from entry to the diag from page 1 to hex n
+    :return: sequence
+    """
+    seq = ""
+    for i in range(0, n - 1):
+        seq += "s"
+    return seq + "p"
+
+
+def diag4():
+    seqx = "sssp"
+    seqx += to_group(2)
+    seqx += to_exit(2)
+    return seqx
+
+
+def diag5():
+    seqx = "ssssp"
+    seqx += to_group(5)
+    seqx += to_exit(6)
+    return seqx
+
+
+def xpt(n):
+    s = "ppppsbpbpbpbpp"
+    return s
+    for i in range(1, n):
+        #   s += "bppppsbpbpbpbpp"
+        s += "b"  # to origin
+        #   s +=  "ppppsbpbpbpbpp"
+        s += "ppppsb"  # pbpbpbpp"
+    s += "s"
+    return s
+
+
+print_sequence(strToSeq(xpt(2)))
